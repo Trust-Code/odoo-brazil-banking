@@ -45,5 +45,5 @@
     'demo': [
         'demo/payment_demo.xml',
     ],
-    'active': False,
+    'active': True,
 }

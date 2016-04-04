@@ -37,7 +37,7 @@
     'data': [
         'view/cnab_import_view.xml',
     ],
-    'active': False,
+    'active': True,
     "installable": True,
     "auto_install": False,
     'description': """

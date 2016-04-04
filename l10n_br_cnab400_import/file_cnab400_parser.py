@@ -27,6 +27,9 @@ from openerp.addons.account_bank_statement_import.parserlib import (
     BankStatement)
 from decimal import Decimal
 
+import logging
+_logger = logging.getLogger(__name__)
+
 try:
     import cnab240
     from cnab240.tipos import ArquivoCobranca400

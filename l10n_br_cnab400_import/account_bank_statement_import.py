@@ -39,7 +39,7 @@ class AccountBankStatementImport(models.TransientModel):
     _inherit = 'account.bank.statement.import'
 
     import_modes = fields.Selection(
-        MODOS_IMPORTACAO_CNAB,
+        selection_add=MODOS_IMPORTACAO_CNAB,
         string=u'Opções de importação', select=True, required=True)
 
     @api.model

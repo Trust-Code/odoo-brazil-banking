@@ -39,13 +39,18 @@ class PaymentOrderCreate(models.TransientModel):
                     ('debit', '>', 0)
                 ]
             # TODO: Refactory this
-            index = domain.index(('invoice.payment_mode_id', '=', False))
-            del domain[index - 1]
-            domain.remove(('invoice.payment_mode_id', '=', False))
-            index = domain.index(('date_maturity', '<=', self.duedate))
-            del domain[index - 1]
-            domain.remove(('date_maturity', '=', False))
-            domain.remove(('date_maturity', '<=', self.duedate))
+            if ('invoice.payment_mode_id', '=', False) in domain:
+                index = domain.index(('invoice.payment_mode_id', '=', False))
+                del domain[index - 1]
+                domain.remove(('invoice.payment_mode_id', '=', False))
+            if ('date_maturity', '<=', self.duedate) in domain:
+                index = domain.index(('date_maturity', '<=', self.duedate))
+                del domain[index - 1]
+                domain.remove(('date_maturity', '<=', self.duedate))
+            if ('date_maturity', '=', False) in domain:
+                index = domain.index(('date_maturity', '=', False))
+                del domain[index - 1]
+                domain.remove(('date_maturity', '=', False))
 
         elif payment_order.mode.type.code == '400':
             if payment_order.mode.payment_order_type == 'cobranca':

@@ -38,7 +38,7 @@
         'view/cnab_import_view.xml',
         'view/account_move_line.xml',
     ],
-    'active': False,
+    'active': True,
     "installable": True,
     "auto_install": False,
     'description': """
