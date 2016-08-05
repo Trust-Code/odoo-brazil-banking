@@ -22,6 +22,7 @@
 
 import logging
 from openerp import models, fields, api
+from openerp.exceptions import Warning as UserError
 from datetime import date
 from ..boleto.document import Boleto
 from ..boleto.document import BoletoException
@@ -38,8 +39,48 @@ class AccountMoveLine(models.Model):
         u'Nosso Número', readonly=True)
 
     @api.multi
+    def validate_boleto_config(self):
+        error_list = []
+        for move_line in self:
+            if not move_line.partner_id.district:
+                error_list.append(u"Bairro do cliente não está definido")
+            if not move_line.partner_id.country_id.id:
+                error_list.append(u"País do cliente não está definido")
+            if not move_line.partner_id.l10n_br_city_id.name:
+                error_list.append(u"Cidade do cliente não está definida")
+            if not move_line.partner_id.street:
+                error_list.append(u"Nome da rua do cliente não está definida")
+            if not move_line.partner_id.number:
+                error_list.append(
+                    u"Número da residência do cliente não está definida")
+            if move_line.payment_mode_id.type_sale_payment != '00':
+                error_list.append(
+                    u"In payment mode %s Tipo SPED must be 00 - Duplicata" %
+                    move_line.payment_mode_id.name)
+            if not move_line.payment_mode_id.internal_sequence_id:
+                error_list.append(u"Please set sequence in payment mode %s" %
+                                  move_line.payment_mode_id.name)
+            if not move_line.payment_mode_id.boleto_type:
+                error_list.append(
+                    u"Configure o tipo de boleto no modo de pagamento")
+            if not move_line.payment_mode_id.boleto_carteira:
+                error_list.append(u"Carteira not set in payment method")
+            if not move_line.payment_mode_id.instrucoes:
+                error_list.append(u"Campo de instruções vazio")
+            if move_line.payment_mode_id.instrucoes and \
+               len(move_line.payment_mode_id.instrucoes) > 90:
+                error_list.append(
+                    u"Campo de instruções excedeu o limite de 90 caracteres")
+            if len(error_list) > 0:
+                error_string = "\n".join(error_list)
+                raise UserError('Atenção!', error_string)
+            return True
+
+    @api.multi
     def send_payment(self):
         boleto_list = []
+
+        self.validate_boleto_config()
         for move_line in self:
             try:
                 if move_line.payment_mode_id.type_sale_payment == '00':
