@@ -57,6 +57,9 @@ class Cnab240(Cnab):
         elif bank == '756':
             from .bancos.sicoob import Sicoob240
             return Sicoob240
+        elif bank == '001':
+            from .bancos.banco_brasil import BancoBrasil240
+            return BancoBrasil240
         else:
             return Cnab240
 
@@ -210,7 +213,7 @@ class Cnab240(Cnab):
             'codigo_baixa': 2,
             'prazo_baixa': 0,  # De 5 a 120 dias.
             'controlecob_data_gravacao': self.data_hoje(),
-            'cobranca_carteira': int(self.order.mode.boleto_carteira),
+            'cobranca_carteira': int(self.order.mode.boleto_carteira[:2]),
         }
 
     def remessa(self, order):

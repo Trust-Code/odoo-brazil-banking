@@ -26,15 +26,13 @@ from openerp.tools.translate import _
 from openerp.exceptions import Warning
 from contextlib import contextmanager
 
-try:
-    import cnab240
-    from cnab240.tipos import ArquivoCobranca400 as cnab_parser
-    from cnab240.bancos import bradesco_cobranca_retorno_400 as bradesco
-    from cnab240.ocorrencias import retorna_ocorrencia, \
-        retorna_motivios_ocorrencia
-    import codecs
-except:
-    raise Exception(_('Please install python lib PyCNAB'))
+
+import cnab240
+from cnab240.tipos import ArquivoCobranca400 as cnab_parser
+#from cnab240.bancos import bradesco_cobranca_retorno_400 as bradesco
+from cnab240.ocorrencias import retorna_ocorrencia, \
+    retorna_motivios_ocorrencia
+import codecs
 
 
 _logger = logging.getLogger(__name__)

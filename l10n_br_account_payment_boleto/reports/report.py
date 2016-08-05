@@ -56,8 +56,14 @@ class report_custom(report_int):
         if active_model == 'account.invoice':
             ai_obj = pool.get('account.invoice')
             for account_invoice in ai_obj.browse(cr, uid, active_ids):
+                if account_invoice.state == 'draft':
+                    raise osv.except_osv(
+                                         'Error !', ('A fatura não esta confirmada.'))
                 for move_line in account_invoice.move_line_receivable_id:
                     ids_move_lines.append(move_line.id)
+                if len(ids_move_lines) == 0:
+                    raise osv.except_osv(
+                                         'Error !', ('Não existem vencimentos para esta fatura.'))
         elif active_model == 'account.move.line':
             ids_move_lines = active_ids
         else:
