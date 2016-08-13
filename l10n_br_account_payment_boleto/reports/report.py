@@ -26,6 +26,7 @@ from openerp.report.interface import report_int
 from openerp import pooler
 from ..boleto.document import Boleto
 from openerp.osv import osv
+from openerp.exceptions import Warning as UserError
 
 
 class external_pdf(render):
@@ -57,13 +58,13 @@ class report_custom(report_int):
             ai_obj = pool.get('account.invoice')
             for account_invoice in ai_obj.browse(cr, uid, active_ids):
                 if account_invoice.state == 'draft':
-                    raise osv.except_osv(
-                                         'Error !', ('A fatura não esta confirmada.'))
+                    raise UserError(u'Error !',
+                                    u'A fatura não esta confirmada.')
                 for move_line in account_invoice.move_line_receivable_id:
                     ids_move_lines.append(move_line.id)
                 if len(ids_move_lines) == 0:
-                    raise osv.except_osv(
-                                         'Error !', ('Não existem vencimentos para esta fatura.'))
+                    raise UserError(
+                        'Error !', u'Não existe vencimentos para esta fatura.')
         elif active_model == 'account.move.line':
             ids_move_lines = active_ids
         else:
@@ -71,7 +72,7 @@ class report_custom(report_int):
 
         boleto_list = aml_obj.send_payment(cr, uid, ids_move_lines)
         if not boleto_list:
-            raise osv.except_osv(
+            raise UserError(
                 'Error !', ('Não é possível gerar os boletos\n'
                             'Certifique-se que a fatura esteja confirmada e o '
                             'forma de pagamento seja duplicatas'))

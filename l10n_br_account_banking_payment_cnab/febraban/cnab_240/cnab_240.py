@@ -60,6 +60,9 @@ class Cnab240(Cnab):
         elif bank == '001':
             from .bancos.banco_brasil import BancoBrasil240
             return BancoBrasil240
+        elif bank == '0851':
+            from .bancos.cecred import Cecred240
+            return Cecred240
         else:
             return Cnab240
 

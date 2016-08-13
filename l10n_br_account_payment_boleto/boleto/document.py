@@ -297,6 +297,27 @@ class BoletoSicoob(Boleto):
     def getBranchNumber(self):
         return self.branch_number.encode('utf-8')
 
+
+class BoletoCecred(Boleto):
+    def __init__(self, move_line, nosso_numero):
+        self.boleto = Boleto.getBoletoClass(move_line)()
+        self.account_number = move_line.payment_mode_id.bank_id.acc_number
+        self.account_digit = move_line.payment_mode_id.bank_id.acc_number_dig
+        self.branch_number = move_line.payment_mode_id.bank_id.bra_number
+        self.branch_digit = move_line.payment_mode_id.bank_id.bra_number_dig
+        Boleto.__init__(self, move_line, nosso_numero)
+        self.boleto.codigo_beneficiario = \
+            re.sub('[^0-9]', '',
+                   move_line.payment_mode_id.bank_id.codigo_da_empresa)
+        self.boleto.nosso_numero = self.nosso_numero
+
+    def getAccountNumber(self):
+        return self.account_number.encode('utf-8')
+
+    def getBranchNumber(self):
+        return self.branch_number.encode('utf-8')
+
+
 dict_boleto = {
     '1': (BoletoBB, 'Banco do Brasil 18'),
     '2': (BoletoBarisul, 'Barisul x'),
@@ -311,6 +332,7 @@ dict_boleto = {
     '11': (BoletoCaixaSigcb, 'Caixa Sigcb'),
     '12': (BoletoSicredi, 'Sicredi'),
     '13': (BoletoSicoob, 'Sicoob'),
+    '14': (BoletoCecred, 'Cecred'),
 }
 
 

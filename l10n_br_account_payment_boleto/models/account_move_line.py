@@ -42,6 +42,9 @@ class AccountMoveLine(models.Model):
     def validate_boleto_config(self):
         error_list = []
         for move_line in self:
+            if not move_line.partner_id.legal_name:
+                error_list.append(
+                    u"Razão social/Nome do cliente não está definido")
             if not move_line.partner_id.district:
                 error_list.append(u"Bairro do cliente não está definido")
             if not move_line.partner_id.country_id.id:
@@ -82,35 +85,28 @@ class AccountMoveLine(models.Model):
 
         self.validate_boleto_config()
         for move_line in self:
-            try:
-                if move_line.payment_mode_id.type_sale_payment == '00':
-                    number_type = move_line.company_id.own_number_type
-                    if not move_line.boleto_own_number:
-                        if number_type == '0':
-                            nosso_numero = self.env['ir.sequence'].next_by_id(
-                                move_line.company_id.own_number_sequence.id)
-                        elif number_type == '1':
-                            nosso_numero = \
-                                move_line.transaction_ref.replace('/', '')
-                        else:
-                            nosso_numero = self.env['ir.sequence'].next_by_id(
-                                move_line.payment_mode_id.
-                                internal_sequence_id.id)
+            if move_line.payment_mode_id.type_sale_payment == '00':
+                number_type = move_line.company_id.own_number_type
+                if not move_line.boleto_own_number:
+                    if number_type == '0':
+                        nosso_numero = self.env['ir.sequence'].next_by_id(
+                            move_line.company_id.own_number_sequence.id)
+                    elif number_type == '1':
+                        nosso_numero = \
+                            move_line.transaction_ref.replace('/', '')
                     else:
-                        nosso_numero = move_line.boleto_own_number
+                        nosso_numero = self.env['ir.sequence'].next_by_id(
+                            move_line.payment_mode_id.
+                            internal_sequence_id.id)
+                else:
+                    nosso_numero = move_line.boleto_own_number
 
-                    boleto = Boleto.getBoleto(move_line, nosso_numero)
-                    if boleto:
-                        move_line.date_payment_created = date.today()
-                        move_line.transaction_ref = \
-                            boleto.boleto.format_nosso_numero()
-                        move_line.boleto_own_number = nosso_numero
+                boleto = Boleto.getBoleto(move_line, nosso_numero)
+                if boleto:
+                    move_line.date_payment_created = date.today()
+                    move_line.transaction_ref = \
+                        boleto.boleto.format_nosso_numero()
+                    move_line.boleto_own_number = nosso_numero
 
-                    boleto_list.append(boleto.boleto)
-            except BoletoException as be:
-                _logger.error(be.message or be.value, exc_info=True)
-                continue
-            except Exception:
-                _logger.error('Erro ao gerar boleto', exc_info=True)
-                continue
+                boleto_list.append(boleto.boleto)
         return boleto_list
