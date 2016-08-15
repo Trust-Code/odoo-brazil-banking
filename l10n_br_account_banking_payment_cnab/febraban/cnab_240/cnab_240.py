@@ -92,7 +92,7 @@ class Cnab240(Cnab):
             'cedente_agencia': int(
                 self.order.mode.bank_id.bra_number),
             'cedente_conta': int(self.order.mode.bank_id.acc_number),
-            'cedente_conta_dv': (self.order.mode.bank_id.acc_number_dig),
+            'cedente_conta_dv': self.order.mode.bank_id.acc_number_dig,
             'cedente_agencia_dv': self.order.mode.bank_id.bra_number_dig,
             'cedente_nome': self.order.company_id.legal_name,
             # DV ag e conta
@@ -230,6 +230,7 @@ class Cnab240(Cnab):
         self.order = order
         header = self._prepare_header()
         self.arquivo = Arquivo(self.bank, **header)
+
         for line in order.line_ids:
             seg = self._prepare_segmento(line)
             self.arquivo.incluir_cobranca(header, **seg)
