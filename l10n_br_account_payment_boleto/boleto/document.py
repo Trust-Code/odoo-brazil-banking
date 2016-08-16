@@ -312,10 +312,10 @@ class BoletoCecred(Boleto):
         self.boleto.nosso_numero = self.nosso_numero
 
     def getAccountNumber(self):
-        return self.account_number.encode('utf-8')
+        return u"%s-%s" % (self.account_number, self.account_digit)
 
     def getBranchNumber(self):
-        return self.branch_number.encode('utf-8')
+        return u"%s-%s" % (self.branch_number, self.branch_digit)
 
 
 dict_boleto = {

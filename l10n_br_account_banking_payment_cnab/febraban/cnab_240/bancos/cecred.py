@@ -20,25 +20,9 @@ class Cecred240(Cnab240):
 
     def _prepare_segmento(self, line):
         vals = super(Cecred240, self)._prepare_segmento(line)
-
-        nossonumero, digito = self.nosso_numero(
-            line.move_line_id.transaction_ref)
-
-        parcela = line.move_line_id.name.split('/')[1]
         vals['carteira_numero'] = int(line.order_id.mode.boleto_carteira)
-        vals['nosso_numero'] = self.format_nosso_numero(
-            nossonumero, digito, parcela, line.order_id.mode.boleto_modalidade)
-        vals['nosso_numero_dv'] = int(digito)
+        vals['nosso_numero'] = line.move_line_id.transaction_ref
         vals['prazo_baixa'] = '0'
         vals['controlecob_numero'] = self.order.id
         vals['controlecob_data_gravacao'] = self.data_hoje()
         return vals
-
-    def nosso_numero(self, format):
-        digito = format[-1:]
-        nosso_numero = format[2:-2]
-        return nosso_numero, digito
-
-    def format_nosso_numero(self, nosso_numero, digito, parcela, modalidade):
-        return "%s%s%s%s4     " % (nosso_numero.zfill(9), digito,
-                                   parcela.zfill(2), modalidade)
