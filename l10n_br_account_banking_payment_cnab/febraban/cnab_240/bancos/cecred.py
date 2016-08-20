@@ -22,7 +22,8 @@ class Cecred240(Cnab240):
         vals = super(Cecred240, self)._prepare_segmento(line)
         vals['carteira_numero'] = int(line.order_id.mode.boleto_carteira)
         vals['nosso_numero'] = line.move_line_id.transaction_ref
-        vals['prazo_baixa'] = '0'
+        vals['prazo_baixa'] = ''
+        vals['especie_titulo'] = 2  # Duplicata Mercantil
         vals['controlecob_numero'] = self.order.id
         vals['controlecob_data_gravacao'] = self.data_hoje()
         return vals

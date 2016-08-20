@@ -30,6 +30,15 @@ except ImportError:
     from StringIO import StringIO
 BoletoException = bank.BoletoException
 
+ESPECIE_TITULO = {
+    '01': 'DM',
+    '02': 'NP',
+    '03': 'NS',
+    '05': 'REC',
+    '13': 'ND',
+    '08': 'DS'
+}
+
 
 class Boleto:
     boleto = object
@@ -97,6 +106,11 @@ class Boleto:
         self.boleto.aceite = payment_mode_id.boleto_aceite
         self.boleto.carteira = payment_mode_id.boleto_carteira
         self.boleto.instrucoes = payment_mode_id.instrucoes
+        if payment_mode_id.boleto_especie in ESPECIE_TITULO:
+            self.boleto.especie_documento = ESPECIE_TITULO[
+                payment_mode_id.boleto_especie]
+        else:
+            self.boleto.especie_documento = 'OU'
 
     def _cedente(self, company):
         """
