@@ -3,6 +3,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from ..cnab_240 import Cnab240
+from openerp.exceptions import Warning as UserError
 
 
 class BancoBrasil240(Cnab240):
@@ -35,6 +36,9 @@ class BancoBrasil240(Cnab240):
         protesto = int(line.env['payment.mode'].search([]).boleto_protesto)
         if protesto == 3:
             dias_protesto = 0
+        if protesto != 1 or protesto != 2 or protesto != 3:
+            protesto = 3
+            dias_protesto = 0
         else:
             dias_protesto = int(line.env['payment.mode'].search([]).
                                 boleto_protesto_prazo)
@@ -42,8 +46,11 @@ class BancoBrasil240(Cnab240):
         dv_conta = int(line.env['payment.mode'].search([]).
                        bank_id.acc_number_dig)
         vals = super(BancoBrasil240, self)._prepare_segmento(line)
-        nossonumero, digito = self.nosso_numero(
-            line.move_line_id.transaction_ref)
+        if line.move_line_id.transaction_ref:
+            nossonumero, digito = self.nosso_numero(
+                line.move_line_id.transaction_ref)
+        else:
+            raise UserError('Esta cobrança não possui um boleto associado.')
         # parcela = line.move_line_id.name.split('/')[1]
         # vals['cedente_convenio'] = self.format_codigo_convenio_banco(line)
         vals['carteira_numero'] = int(line.order_id.mode.boleto_carteira[:2])
