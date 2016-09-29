@@ -32,6 +32,7 @@ except ImportError:
     _logger.warn("ofxparse not found, OFX parsing disabled.")
     ofxparser = None
 
+
 class AccountBankStatementImport(models.TransientModel):
     """Extend model account.bank.statement."""
     _inherit = 'account.bank.statement.import'
@@ -61,6 +62,7 @@ class AccountBankStatementImport(models.TransientModel):
         if ofxparser is None:
             return False
         try:
+            data_file = data_file.replace('\r\n', '\n').replace('\r', '\n')
             ofx = ofxparser.parse(StringIO.StringIO(data_file))
         except:
             return False
@@ -134,5 +136,11 @@ class AccountBankStatementImport(models.TransientModel):
             'balance_end_real':
                 float(ofx.account.statement.balance) + total_amt,
         }
-        return ofx.account.statement.currency, ofx.account.number, [
+        account = ofx.account.number
+        if self.journal_id:
+            bank_account = self.env['res.partner.bank'].search(
+                [('journal_id', '=', self.journal_id.id)], limit=1)
+
+            account = bank_account.acc_number
+        return ofx.account.statement.currency, account, [
             vals_bank_statement]
