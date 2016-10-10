@@ -80,6 +80,31 @@ class AccountMoveLine(models.Model):
             return True
 
     @api.multi
+    def generate_draft_payment_order(self):
+        """Gera um objeto de payment.order ao imprimir um boleto"""
+        payment_order = self.env['payment.order'].search([
+            ('state', '=', 'draft'),
+            ('payment_order_type', '=', 'cobranca')], limit=1)
+        if not payment_order:
+            order_dict = {
+                'user_id': self.env.user.id,
+                'mode': self.payment_mode_id.id,
+                'date_maturity': self.date_maturity,
+                'state': 'draft',
+                'payment_order_type': 'cobranca',
+            }
+            payment_order = self.env['payment.order'].create(order_dict)
+
+        lines = self.env['payment.line'].search(
+            [('move_line_id', '=', self.id)])
+        if not lines:
+            wiz_order = self.env['payment.order.create'].with_context(
+                active_model='payment.order', active_id=payment_order.id
+            ).create({'date_type': 'due'})
+            vals = wiz_order._prepare_payment_line(payment_order, self)
+            self.env['payment.line'].create(vals)
+
+    @api.multi
     def send_payment(self):
         boleto_list = []
 
@@ -109,4 +134,5 @@ class AccountMoveLine(models.Model):
                     move_line.boleto_own_number = nosso_numero
 
                 boleto_list.append(boleto.boleto)
+                move_line.generate_draft_payment_order()
         return boleto_list

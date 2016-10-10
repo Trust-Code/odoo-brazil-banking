@@ -60,6 +60,9 @@ class report_custom(report_int):
                 if account_invoice.state == 'draft':
                     raise UserError(u'Error !',
                                     u'A fatura não esta confirmada.')
+                if not account_invoice.payment_mode_id:
+                    raise UserError(u'Error !',
+                                    u'Escolha o mode de pagamento boleto.')
                 for move_line in account_invoice.move_line_receivable_id:
                     ids_move_lines.append(move_line.id)
                 if len(ids_move_lines) == 0:
