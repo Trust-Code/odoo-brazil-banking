@@ -32,5 +32,4 @@ class PaymentMode(models.Model):
         u'Condição Emissão de Papeleta', default='1')
 
     comunicacao_2 = fields.Char("Comunicação para o sacador avalista")
-    # A exportação CNAB não se encaixa somente nos parâmetros de
-    # débito e crédito.
+    cnab_sequence_id = fields.Many2one('ir.sequence', u'Sequência CNAB')

@@ -8,6 +8,7 @@
             <field name="priority" eval="16"/>
             <field name="arch" type="xml">
                 <field name="internal_sequence_id" position="after">
+                    <field name="cnab_sequence_id" />
                     <field name="condicao_emissao_papeleta"/>
                     <field name="comunicacao_2"/>
                 </field>

@@ -2,25 +2,24 @@
 <openerp>
     <data>
 
+<!--
+        <act_window id="nfse_export_invoice" key2="client_action_multi"
+            name="Exportar Xml NFSe - Florianópolis" res_model="nfse.export.invoice"
+            src_model="payment.order" view_id="view_nfse_florianopolis_nfse_export_invoice_form"
+            view_mode="form" target="new" view_type="form" />
+-->
         <record id="payment_cnab_payment_order_sequence" model="ir.ui.view">
             <field name="name">payment.order.form.sequence</field>
             <field name="model">payment.order</field>
-            <field name="inherit_id"
-                   ref="account_payment.view_payment_order_form"/>
+            <field name="inherit_id" ref="account_payment.view_payment_order_form"/>
             <field name="priority" eval="15"/>
             <field name="arch" type="xml">
                 <data>
-
-                    <xpath expr="//field[@name='date_scheduled']"
-                           position="after">
+                    <xpath expr="//field[@name='date_scheduled']" position="after">
                         <field name="file_number"/>
-                        <!--<field name="serie_id" domain="[('parent_payment_mode', '=', mode)]"/>-->
-                        <field name="serie_id"/>
                         <field name="sufixo_arquivo"/>
-                        <!--<field name="serie_sufixo_arquivo" domain="[('parent_payment_mode_suf', '=', mode)]"/>-->
                         <field name="serie_sufixo_arquivo"/>
                     </xpath>
-
                 </data>
             </field>
         </record>
