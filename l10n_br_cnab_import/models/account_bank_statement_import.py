@@ -29,11 +29,8 @@ _logger = logging.getLogger(__name__)
 
 
 MODOS_IMPORTACAO_CNAB = [
-    ('bradesco_pag_for', u'Bradesco PagFor 500'),
-    ('bradesco_cobranca_240', u'Bradesco Cobrança 240'),
-    ('itau_cobranca_240', u'Itaú Cobrança 240'),
-    ('cef_cobranca_240', u'CEF Cobrança 240'),
     ('sicoob_240', u'Sicoob Cobrança 240'),
+    ('cecred_240', u'CECRED 240'),
 ]
 
 
@@ -44,16 +41,6 @@ class AccountBankStatementImport(models.TransientModel):
     import_modes = fields.Selection(
         MODOS_IMPORTACAO_CNAB,
         string=u'Opções de importação', select=True, required=True)
-
-    @api.model
-    def _check_cnab(self, data_file):
-        if cnabparser is None:
-            return False
-        try:
-            cnab_file = cnabparser.parse(StringIO.StringIO(data_file))
-        except:
-            return False
-        return cnab_file
 
     @api.model
     def _find_bank_account_id(self, account_number):
@@ -82,11 +69,10 @@ class AccountBankStatementImport(models.TransientModel):
         for line_vals in stmt_vals['transactions']:
             unique_import_id = line_vals.get('unique_import_id', False)
             if unique_import_id:
-                line_vals['unique_import_id'] = unique_import_id
-                payment = self.env['payment.line'].search(
-                    [('name', '=', line_vals['unique_import_id'])])
-                line_vals['partner_id'] = payment.partner_id.id
-
+                moves = self.env['account.move.line'].search(
+                    [('transaction_ref', '=', unique_import_id)])
+                if moves:
+                    line_vals['partner_id'] = moves[0].partner_id.id
         return stmt_vals
 
     @api.multi
@@ -96,7 +82,13 @@ class AccountBankStatementImport(models.TransientModel):
         parser = cnabparser()
         try:
             _logger.debug("Try parsing with CNAB.")
-            return parser.parse(data_file, self.import_modes)
+            vals = parser.parse(data_file, self.import_modes)
+            if self.journal_id:
+                bank_account = self.env['res.partner.bank'].search(
+                    [('journal_id', '=', self.journal_id.id)], limit=1)
+
+                vals[0]['account_number'] = bank_account.acc_number
+            return vals
         except ValueError:
             # Not a CNAB file, returning super will call next candidate:
             _logger.debug("Statement file was not a CNAB  file.",

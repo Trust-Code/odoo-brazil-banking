@@ -44,15 +44,9 @@ class Cnab240Parser(object):
 
     @staticmethod
     def determine_bank(nome_impt):
-        if nome_impt == 'bradesco_pag_for':
-            from cnab240.bancos import bradescoPagFor
-            return bradescoPagFor
-        elif nome_impt == 'bradesco_cobranca_240':
-            from cnab240.bancos import bradesco
-            return bradesco
-        elif nome_impt == 'itau_cobranca_240':
-            from cnab240.bancos import itau
-            return itau
+        if nome_impt == 'cecred_240':
+            from cnab240.bancos import cecred
+            return cecred
         elif nome_impt == 'sicoob_240':
             from cnab240.bancos import sicoob
             return sicoob
@@ -84,7 +78,7 @@ class Cnab240Parser(object):
                     'label': evento.sacado_inscricao_numero,  # cnpj
                     'transaction_id': evento.numero_documento,
                     # nosso numero, Alfanumérico
-                    'unique_import_id': evento.numero_documento,
+                    'unique_import_id': evento.nosso_numero,
                 })
                 total_amt += evento.valor_titulo
 
