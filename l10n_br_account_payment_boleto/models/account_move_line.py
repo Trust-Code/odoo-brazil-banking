@@ -102,6 +102,7 @@ class AccountMoveLine(models.Model):
                 active_model='payment.order', active_id=payment_order.id
             ).create({'date_type': 'due'})
             vals = wiz_order._prepare_payment_line(payment_order, self)
+            vals['amount_currency'] = self.debit
             self.env['payment.line'].create(vals)
 
     @api.multi
