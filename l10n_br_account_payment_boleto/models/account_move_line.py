@@ -96,7 +96,8 @@ class AccountMoveLine(models.Model):
             payment_order = self.env['payment.order'].create(order_dict)
 
         lines = self.env['payment.line'].search(
-            [('move_line_id', '=', self.id)])
+            [('move_line_id', '=', self.id),
+             ('order_id.state', '=', 'draft')])
         if not lines:
             wiz_order = self.env['payment.order.create'].with_context(
                 active_model='payment.order', active_id=payment_order.id
