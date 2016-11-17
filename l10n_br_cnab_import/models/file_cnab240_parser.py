@@ -69,17 +69,19 @@ class Cnab240Parser(object):
         total_amt = Decimal(0.00)
         for lote in arquivo.lotes:
             for evento in lote.eventos:
-                transacoes.append({
+                vals = {
                     'name': evento.sacado_nome,
-                    'date': datetime.datetime.strptime(
-                        str(evento.vencimento_titulo), '%d%m%Y'),
                     'amount': evento.valor_titulo,
                     'ref': evento.numero_documento,
                     'label': evento.sacado_inscricao_numero,  # cnpj
                     'transaction_id': evento.numero_documento,
                     # nosso numero, Alfanumérico
                     'unique_import_id': evento.nosso_numero,
-                })
+                }
+                if evento.vencimento_titulo:
+                    vals['date'] = datetime.datetime.strptime(
+                        str(evento.vencimento_titulo), '%d%m%Y')
+                transacoes.append(vals)
                 total_amt += evento.valor_titulo
 
         vals_bank_statement = {
